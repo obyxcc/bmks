@@ -1,0 +1,65 @@
+#! /bin/bash
+
+# set prefered launcher
+PREFERED_LAUNCHER=dmenu
+# set path where urls will be stored
+URL_FILE_PATH=$HOME/.bmks/
+# name of file urls will be stored in
+URL_FILE_NAME=urls
+
+show_usage() {
+	printf "bmks: unix bookmark management that sucks less
+
+usage:
+bmks help
+	show this help message
+bmks add <url>
+	add a new bookmark
+bmks del
+	remove a bookmark
+bmks ls
+	show all bookmarks
+
+Configuration is done by directly editing the script. Two launchers are available (dmenu and fzf). You can specify which one to use by adding to the PREFERED_LAUNCHER variable directly in the script. Both will display a menu that will allow you to choose a bookmark and open it in your default browser.
+
+If you would prefer to have your bookmarks stored in alternate location there are also variables that can be changed for that. The default is /home/user/.bmks/urls\n"
+}
+
+bmks_add() {
+	[ -z "$url" ] && printf "Error: url must be provided\n\n" && show_usage && exit 0
+	printf "Description: "
+	read description
+	[ -z "$description" ] && echo "$url" >> $URL_FILE_PATH/$URL_FILE_NAME
+	[ -n "$description" ] && echo "$description - $url" >> $URL_FILE_PATH/$URL_FILE_NAME
+}
+
+bmks_ls() {
+	cat $URL_FILE_PATH/$URL_FILE_NAME | sort
+}
+
+bmks_del() {
+	[ -s $URL_FILE_PATH/$URL_FILE_NAME ] && sed -i "/$(cat $URL_FILE_PATH/$URL_FILE_NAME | sort | dmenu -c -l $(cat $URL_FILE_PATH/$URL_FILE_NAME | wc -l))/d" $URL_FILE_PATH/$URL_FILE_NAME || echo "Error: no bookmarks to delete" && exit 0
+}
+
+bmks_dmenu() {
+	cat $URL_FILE_PATH/$URL_FILE_NAME | sort | dmenu -c -l $(cat $URL_FILE_PATH/$URL_FILE_NAME | wc -l) | awk -F ' ' '{ print $3 }' | xargs -I '{}' $BROWSER {}
+}
+
+bmks_fzf() {
+	cat $URL_FILE_PATH/$URL_FILE_NAME | sort | fzf | awk -F ' ' '{ print $3 }' | xargs -I '{}' $BROWSER {}
+}
+
+[ ! -d $URL_FILE_PATH ] && mkdir $URL_FILE_PATH
+[ ! -f $URL_FILE_PATH/$URL_FILE_NAME ] && touch $URL_FILE_PATH/$URL_FILE_NAME
+
+case "$1" in
+	"help") show_usage ;;
+	"add")
+		url=$2
+		bmks_add ;;
+	"del") bmks_del ;;
+	"ls") bmks_ls ;;
+	"dmenu") bmks_dmenu ;;
+	"fzf") bmks_fzf ;;
+	*) bmks_dmenu ;;
+esac
