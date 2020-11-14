@@ -59,7 +59,5 @@ case "$1" in
 		bmks_add ;;
 	"del") bmks_del ;;
 	"ls") bmks_ls ;;
-	"dmenu") bmks_dmenu ;;
-	"fzf") bmks_fzf ;;
-	*) bmks_dmenu ;;
+	*) bmks_$PREFERED_LAUNCHER ;;
 esac
