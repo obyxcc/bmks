@@ -42,11 +42,11 @@ bmks_ls() {
 }
 
 bmks_del() {
-	[ -s $URL_FILE_PATH/$URL_FILE_NAME ] && sed -i "/$(cat $URL_FILE_PATH/$URL_FILE_NAME | sort | dmenu -c -l $(cat $URL_FILE_PATH/$URL_FILE_NAME | wc -l))/d" $URL_FILE_PATH/$URL_FILE_NAME || echo "Error: no bookmarks to delete" && exit 0
+	[ -s $URL_FILE_PATH/$URL_FILE_NAME ] && sed -i "/$(cat $URL_FILE_PATH/$URL_FILE_NAME | sort | dmenu -l $(cat $URL_FILE_PATH/$URL_FILE_NAME | wc -l))/d" $URL_FILE_PATH/$URL_FILE_NAME || echo "Error: no bookmarks to delete" && exit 0
 }
 
 bmks_dmenu() {
-	cat $URL_FILE_PATH/$URL_FILE_NAME | sort | dmenu -c -l $(cat $URL_FILE_PATH/$URL_FILE_NAME | wc -l) | awk -F ' ' '{ print $3 }' | xargs -I '{}' $BROWSER {}
+	cat $URL_FILE_PATH/$URL_FILE_NAME | sort | dmenu -l $(cat $URL_FILE_PATH/$URL_FILE_NAME | wc -l) | awk -F ' ' '{ print $3 }' | xargs -I '{}' $BROWSER {}
 }
 
 bmks_fzf() {
